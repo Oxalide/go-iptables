@@ -85,6 +85,10 @@ func (ipt *IPTables) Proto() Protocol {
 	return ipt.proto
 }
 
+// Wait returns if wait Present
+func (ipt *IPTables) Wait() bool {
+	return ipt.hasWait
+}
 // Exists checks if given rulespec in specified table/chain exists
 func (ipt *IPTables) Exists(table, chain string, rulespec ...string) (bool, error) {
 	if !ipt.hasCheck {
@@ -139,20 +143,19 @@ func (ipt *IPTables) Delete(table, chain string, rulespec ...string) error {
 // List rules in specified table/chain
 func (ipt *IPTables) List(table, chain string) ([]string, error) {
 	args := []string{"-t", table, "-S", chain}
-	return ipt.executeList(args)
+	return ipt.ExecuteList(args)
 }
-
-// List rules (with counters) in specified table/chain
-func (ipt *IPTables) ListWithCounters(table, chain string) ([]string, error) {
-	args := []string{"-t", table, "-v", "-S", chain}
-	return ipt.executeList(args)
+// ListWithWait rules in specified table/chain
+func (ipt *IPTables) ListWithWait(table, chain string) ([]string, error) {
+	args := []string{"-t", table, "-S", chain, "--wait"}
+	return ipt.ExecuteList(args)
 }
 
 // ListChains returns a slice containing the name of each chain in the specified table.
 func (ipt *IPTables) ListChains(table string) ([]string, error) {
 	args := []string{"-t", table, "-S"}
 
-	result, err := ipt.executeList(args)
+	result, err := ipt.ExecuteList(args)
 	if err != nil {
 		return nil, err
 	}
@@ -173,7 +176,7 @@ func (ipt *IPTables) ListChains(table string) ([]string, error) {
 	return chains, nil
 }
 
-func (ipt *IPTables) executeList(args []string) ([]string, error) {
+func (ipt *IPTables) ExecuteList(args []string) ([]string, error) {
 	var stdout bytes.Buffer
 	if err := ipt.runWithOutput(args, &stdout); err != nil {
 		return nil, err
@@ -193,6 +196,12 @@ func (ipt *IPTables) NewChain(table, chain string) error {
 	return ipt.run("-t", table, "-N", chain)
 }
 
+// NewChainWithWait creates a new chain in the specified table.
+// If the chain already exists, it will result in an error.
+func (ipt *IPTables) NewChainWithWait(table, chain string) error {
+	return ipt.run("-t", table, "-N", chain, "--wait")
+}
+
 // ClearChain flushed (deletes all rules) in the specified table/chain.
 // If the chain does not exist, a new one will be created
 func (ipt *IPTables) ClearChain(table, chain string) error {
@@ -209,16 +218,41 @@ func (ipt *IPTables) ClearChain(table, chain string) error {
 		return err
 	}
 }
+// ClearChainWithWait flushed (deletes all rules) in the specified table/chain.
+// If the chain does not exist, a new one will be created
+func (ipt *IPTables) ClearChainWithWait(table, chain string) error {
+	err := ipt.NewChainWithWait(table, chain)
+
+	eerr, eok := err.(*Error)
+	switch {
+	case err == nil:
+		return nil
+	case eok && eerr.ExitStatus() == 1:
+		// chain already exists. Flush (clear) it.
+		return ipt.run("-t", table, "-F", chain, "--wait")
+	default:
+		return err
+	}
+}
 
 // RenameChain renames the old chain to the new one.
 func (ipt *IPTables) RenameChain(table, oldChain, newChain string) error {
 	return ipt.run("-t", table, "-E", oldChain, newChain)
+}
+// RenameChainWithWait renames the old chain to the new one.
+func (ipt *IPTables) RenameChainWithWait(table, oldChain, newChain string) error {
+	return ipt.run("-t", table, "-E", oldChain, newChain, "--wait")
 }
 
 // DeleteChain deletes the chain in the specified table.
 // The chain must be empty
 func (ipt *IPTables) DeleteChain(table, chain string) error {
 	return ipt.run("-t", table, "-X", chain)
+}
+// DeleteChainWithWait deletes the chain in the specified table.
+// The chain must be empty
+func (ipt *IPTables) DeleteChainWithWait(table, chain string) error {
+	return ipt.run("-t", table, "-X", chain, "--wait")
 }
 
 // run runs an iptables command with the given arguments, ignoring
