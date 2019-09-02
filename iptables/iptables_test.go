@@ -106,7 +106,7 @@ func TestChain(t *testing.T) {
 }
 
 func runChainTests(t *testing.T, ipt *IPTables) {
-	t.Logf("testing %s (hasWait=%t, hasCheck=%t)", ipt.path, ipt.hasWait, ipt.hasCheck)
+	t.Logf("testing %s (hasWait=%t, hasCheck=%t)", ipt.path, ipt.HasWait, ipt.hasCheck)
 
 	chain := randChain(t)
 
@@ -190,7 +190,7 @@ func TestRules(t *testing.T) {
 }
 
 func runRulesTests(t *testing.T, ipt *IPTables) {
-	t.Logf("testing %s (hasWait=%t, hasCheck=%t)", getIptablesCommand(ipt.Proto()), ipt.hasWait, ipt.hasCheck)
+	t.Logf("testing %s (hasWait=%t, hasCheck=%t)", getIptablesCommand(ipt.Proto()), ipt.HasWait, ipt.hasCheck)
 
 	var address1, address2, subnet1, subnet2 string
 	if ipt.Proto() == ProtocolIPv6 {

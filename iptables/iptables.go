@@ -65,7 +65,7 @@ type IPTables struct {
 	path           string
 	proto          Protocol
 	hasCheck       bool
-	hasWait        bool
+	HasWait        bool
 	hasRandomFully bool
 	v1             int
 	v2             int
@@ -109,7 +109,7 @@ func NewWithProtocol(proto Protocol) (*IPTables, error) {
 		path:           path,
 		proto:          proto,
 		hasCheck:       checkPresent,
-		hasWait:        waitPresent,
+		HasWait:        waitPresent,
 		hasRandomFully: randomFullyPresent,
 		v1:             v1,
 		v2:             v2,
@@ -416,7 +416,7 @@ func (ipt *IPTables) run(args ...string) error {
 // writing any stdout output to the given writer
 func (ipt *IPTables) runWithOutput(args []string, stdout io.Writer) error {
 	args = append([]string{ipt.path}, args...)
-	if ipt.hasWait {
+	if ipt.HasWait {
 		args = append(args, "--wait")
 	} else {
 		fmu, err := newXtablesFileLock()
