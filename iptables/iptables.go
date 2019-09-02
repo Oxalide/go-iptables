@@ -178,20 +178,20 @@ func (ipt *IPTables) Delete(table, chain string, rulespec ...string) error {
 // List rules in specified table/chain
 func (ipt *IPTables) List(table, chain string) ([]string, error) {
 	args := []string{"-t", table, "-S", chain}
-	return ipt.executeList(args)
+	return ipt.ExecuteList(args)
 }
 
 // List rules (with counters) in specified table/chain
 func (ipt *IPTables) ListWithCounters(table, chain string) ([]string, error) {
 	args := []string{"-t", table, "-v", "-S", chain}
-	return ipt.executeList(args)
+	return ipt.ExecuteList(args)
 }
 
 // ListChains returns a slice containing the name of each chain in the specified table.
 func (ipt *IPTables) ListChains(table string) ([]string, error) {
 	args := []string{"-t", table, "-S"}
 
-	result, err := ipt.executeList(args)
+	result, err := ipt.ExecuteList(args)
 	if err != nil {
 		return nil, err
 	}
@@ -215,7 +215,7 @@ func (ipt *IPTables) ListChains(table string) ([]string, error) {
 // Stats lists rules including the byte and packet counts
 func (ipt *IPTables) Stats(table, chain string) ([][]string, error) {
 	args := []string{"-t", table, "-L", chain, "-n", "-v", "-x"}
-	lines, err := ipt.executeList(args)
+	lines, err := ipt.ExecuteList(args)
 	if err != nil {
 		return nil, err
 	}
@@ -335,7 +335,7 @@ func (ipt *IPTables) StructuredStats(table, chain string) ([]Stat, error) {
 	return structStats, nil
 }
 
-func (ipt *IPTables) executeList(args []string) ([]string, error) {
+func (ipt *IPTables) ExecuteList(args []string) ([]string, error) {
 	var stdout bytes.Buffer
 	if err := ipt.runWithOutput(args, &stdout); err != nil {
 		return nil, err
