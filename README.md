@@ -1,7 +1,7 @@
 # go-iptables
 
 [![GoDoc](https://godoc.org/github.com/jeremmfr/go-iptables/iptables?status.svg)](https://godoc.org/github.com/jeremmfr/go-iptables/iptables)
-[![Build Status](https://travis-ci.org/jeremmfr/go-iptables.png?branch=master)](https://travis-ci.org/jeremmfr/go-iptables)
+[![Build Status](https://github.com/jeremmfr/go-iptables/workflows/Go%20Tests/badge.svg)](https://github.com/jeremmfr/go-iptables/actions)
 
 Go bindings for iptables utility.
 
